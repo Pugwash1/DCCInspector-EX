@@ -137,6 +137,10 @@
 #include "HttpManager.h"
 #endif
 
+#if defined(USE_TELNETSERVER)
+#include "TelnetManager.h"
+#endif
+
 // Include OLED if required.
 #if defined(USE_OLED)
 #include "OledDisplay.h"
@@ -178,7 +182,7 @@ unsigned long lastRefresh = 0;
 unsigned int inactivityCount = 0;
 
 // Buffers for decoded packets, used by HTTP and OLED output.
-#if defined(USE_HTTPSERVER)
+#if defined(USE_HTTPSERVER) || defined(USE_TELNETSERVER)
 char packetBuffer[5000] = "";
 #elif defined(USE_OLED)
 char packetBuffer[400] = "";
@@ -237,6 +241,11 @@ void setup() {
 // Start WiFi and HTTP server (if required).
 #if defined(USE_HTTPSERVER)
   HttpManager.begin(WIFI_SSID, WIFI_PASSWORD, DNSNAME);
+#endif
+
+// Start WiFi and HTTP server (if required).
+#if defined(USE_TELNETSERVER)
+  TelnetManager.begin(WIFI_SSID, WIFI_PASSWORD, DNSNAME);
 #endif
 
   // Set time for first output of statistics during calibration
@@ -305,11 +314,15 @@ void loop() {
     // Update OLED
     OledDisplay.refresh();
 #endif
-
 // Output full stats for HTTPServer to use
 #if defined(USE_HTTPSERVER)
     HttpManager.setBuffer(sbPacketDecode.getString());
     HttpManager.writeHtmlStatistics(stats);
+#endif
+
+// Output full stats for TelnetServer to use
+#if defined(USE_TELNETSERVER)
+    TelnetManager.setBuffer(sbPacketDecode.getString());
 #endif
 
     sbPacketDecode.reset();  // Empty decoded packet list.
@@ -356,6 +369,10 @@ void loop() {
 
 #if defined(USE_HTTPSERVER)
   HttpManager.process();
+#endif
+// Check TelnetServer to new/old user
+#if defined(USE_TELNETSERVER)
+  TelnetManager.process();
 #endif
 
   UpdateLED();
@@ -727,7 +744,6 @@ void DecodePacket(Print &output, int inputPacket, bool isDifferentPacket) {
 
   char tempBuffer[100];
   StringBuilder sbTemp(tempBuffer, sizeof(tempBuffer));
-
   // First determine the decoder type and address.
   if (dccPacket[inputPacket][1] == 0B11111111) {  // Idle packet
     if (isDifferentPacket) {
@@ -977,7 +993,7 @@ void DecodePacket(Print &output, int inputPacket, bool isDifferentPacket) {
   if (outputDecodedData) {
 // If not using HTTP, append decoded packet to packet buffer
 //  as-is (without binary dump).  It's all that fits on OLED.
-#if !defined(USE_HTTPSERVER)
+#if !defined(USE_HTTPSERVER) && !defined(USE_TELNETSERVER)
     sbPacketDecode.println(sbTemp.getString());
     sbPacketDecode.end();
 #endif
@@ -991,7 +1007,7 @@ void DecodePacket(Print &output, int inputPacket, bool isDifferentPacket) {
     // Get reference to buffer containing results.
     char *decodedPacket = sbTemp.getString();
 
-#if defined(USE_HTTPSERVER)
+#if defined(USE_HTTPSERVER) || defined(USE_TELNETSERVER)
     // Append decoded packet data and binary dump to string buffer.
     sbPacketDecode.println(decodedPacket);
     sbPacketDecode.end();

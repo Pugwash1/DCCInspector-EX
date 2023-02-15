@@ -17,7 +17,6 @@
 
 #ifndef config_h
 #define config_h
-
 // The following logic should work for all supported platforms, hopefully.
 #if defined(ESP_PLATFORM)
   #if !defined(ESP32)
@@ -48,7 +47,7 @@
 //          Arduino Mega (Timer4/pin D49)
 // If we don't use this, then the selected input pin must support change interrupt 
 // (defaults to pin D2 on Uno, Nano and Mega, GPIO2 on ESP8266 and GPIO5 on ESP32.
-#define USETIMER 
+// #define USETIMER
 
 // Input pin definitions.  Defaults:
 //    Nano (USETIMER):               8
@@ -74,13 +73,13 @@
   #if defined(ESP32) 
     #define INPUTPIN 5
   #else
-    #define INPUTPIN 2
+    #define INPUTPIN D5
   #endif
 #endif
 
 // Uncomment following lines to enable OLED output on pins SDA_OLED and SCL_OLED.
 //  (ESP or Mega only).
-#define USE_OLED        
+//#define USE_OLED
 
 #if defined(ESP8266) // Heltec Kit 8 has pins 4/15 for I2C.
   #define SDA_OLED 4   
@@ -111,11 +110,12 @@
 // LED pin definitions - uncomment and assign as required.
 //#define LEDPIN_ACTIVE 13    // Shows interrupts being received, ie DCC active
 //#define LEDPIN_LOCOSPEED 3  // Driven from loco speed packet for loco 3
-//#define LEDPIN_DECODING 7   // lights when a packet with valid checksum is received
+//#define LEDPIN_DECODING 2   // lights when a packet with valid checksum is received
 //#define LEDPIN_FAULT 6      // Lights when a checksum error or glitch is encountered.
 
 // Uncomment the following line to enable HTTP Server (ESP32 or ESP8266 only).
-#define USE_HTTPSERVER
+//#define USE_HTTPSERVER
+#define USE_TELNETSERVER
 
 // SSID and password can be configured here.  However, the server will, by preference,
 // connect using the same credentials as last time; if that fails it will try WPS; 
