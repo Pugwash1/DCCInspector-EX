@@ -168,7 +168,7 @@ void TelnetManagerClass::process() {
 }
 
 //=======================================================================
-// Process commands sent over the USB serial connection.
+// Process commands sent over the telnet connection.
 //  Return false if nothing done.
 
 int TelnetManagerClass::getCommands() {

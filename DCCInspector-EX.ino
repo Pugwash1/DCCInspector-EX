@@ -358,6 +358,11 @@ void loop() {
     inactivityCount = 0;
   }
 
+// Check TelnetServer for commands
+#if defined(USE_TELNETSERVER)
+  processTelnetCommands(TelnetManager.getCommands()); 
+#endif
+
 #if defined(USE_OLED)
   OledDisplay.checkButton();
 #endif
@@ -373,6 +378,7 @@ void loop() {
 // Check TelnetServer to new/old user
 #if defined(USE_TELNETSERVER)
   TelnetManager.process();
+  TelnetManager.getCommands(); 
 #endif
 
   UpdateLED();
@@ -1166,3 +1172,143 @@ bool processCommands() {
   } else
     return false;
 }
+
+//=======================================================================
+// Process commands sent over the USB serial connection.
+//  Return false if nothing done.
+
+bool processTelnetCommands(int data) {
+    switch (data) {
+      case 49:
+        sbPacketDecode.println(F("Refresh Time = 1s"));
+        DCCStatistics.setRefreshTime(1);
+        break;
+      case 50:
+        sbPacketDecode.println(F("Refresh Time = 2s"));
+        DCCStatistics.setRefreshTime(2);
+        break;
+      case 51:
+        sbPacketDecode.println(F("Refresh Time = 4s"));
+        DCCStatistics.setRefreshTime(4);
+        break;
+      case 52:
+        sbPacketDecode.println(F("Refresh Time = 8s"));
+        DCCStatistics.setRefreshTime(8);
+        break;
+      case 53:
+        sbPacketDecode.println(F("Refresh Time = 16s"));
+        DCCStatistics.setRefreshTime(16);
+        break;
+      case 54:
+        sbPacketDecode.println(F("Buffer Size = 4"));
+        packetHashListSize = 2;
+        break;
+      case 55:
+        sbPacketDecode.println(F("Buffer Size = 8"));
+        packetHashListSize = 8;
+        break;
+      case 56:
+        sbPacketDecode.println(F("Buffer Size = 16"));
+        packetHashListSize = 16;
+        break;
+      case 57:
+        sbPacketDecode.println(F("Buffer Size = 32"));
+        packetHashListSize = 32;
+        break;
+      case 48:
+        sbPacketDecode.println(F("Buffer Size = 64"));
+        packetHashListSize = 64;
+        break;
+      case 'a':
+      case 'A':
+        showAcc = !showAcc;
+        sbPacketDecode.print(F("show accessory packets = "));
+        sbPacketDecode.println(showAcc);
+        break;
+      case 'l':
+      case 'L':
+        showLoc = !showLoc;
+        sbPacketDecode.print(F("show loco packets = "));
+        sbPacketDecode.println(showLoc);
+        break;
+      case 'h':
+      case 'H':
+        showHeartBeat = !showHeartBeat;
+        sbPacketDecode.print(F("show heartbeat = "));
+        sbPacketDecode.println(showHeartBeat);
+        break;
+      case 'd':
+      case 'D':
+        showDiagnostics = !showDiagnostics;
+        sbPacketDecode.print(F("show diagnostics = "));
+        sbPacketDecode.println(showDiagnostics);
+        break;
+      case 'f':
+      case 'F':
+        filterInput = !filterInput;
+        sbPacketDecode.print(F("filter input = "));
+        sbPacketDecode.println(filterInput);
+        break;
+      case 's':
+      case 'S':
+        strictMode = (strictMode + 1) % 3;
+        sbPacketDecode.print(F("NMRA validation level = "));
+        sbPacketDecode.println(strictMode);
+        break;
+      case 'b':
+      case 'B':
+        showBitLengths = !showBitLengths;
+        sbPacketDecode.print(F("show bit lengths = "));
+        sbPacketDecode.println(showBitLengths);
+        break;
+      case 'c':
+      case 'C':
+        showCpuStats = !showCpuStats;
+        sbPacketDecode.print(F("show Cpu stats = "));
+        sbPacketDecode.println(showCpuStats);
+        break;
+      case 'i':
+      case '?':
+        sbPacketDecode.println();
+        sbPacketDecode.println(
+            F("Keyboard commands that can be sent via sbPacketDecode Monitor:"));
+        sbPacketDecode.println(F("1 = 1s refresh time"));
+        sbPacketDecode.println(F("2 = 2s"));
+        sbPacketDecode.println(F("3 = 4s (default)"));
+        sbPacketDecode.println(F("4 = 8s"));
+        sbPacketDecode.println(F("5 = 16s"));
+        sbPacketDecode.println(F("6 = 4 DCC packet buffer"));
+        sbPacketDecode.println(F("7 = 8"));
+        sbPacketDecode.println(F("8 = 16"));
+        sbPacketDecode.println(F("9 = 32 (default)"));
+        sbPacketDecode.println(F("0 = 64"));
+        sbPacketDecode.println(F("a = show accessory packets toggle"));
+        sbPacketDecode.println(F("l = show locomotive packets toggle"));
+        sbPacketDecode.println(F("d = show diagnostics toggle"));
+        sbPacketDecode.println(F("h = show heartbeat toggle"));
+        sbPacketDecode.println(F("b = show half-bit counts by length toggle"));
+        sbPacketDecode.println(F("c = show cpu/irc usage in sniffer"));
+        sbPacketDecode.println(F("f = input filter toggle"));
+        sbPacketDecode.println(
+            F("s = set NMRA compliance strictness "
+              "(0=none,1=decoder,2=controller)"));
+        sbPacketDecode.println(F("? = help (show this information)"));
+        sbPacketDecode.print(F("ShowLoco "));
+        sbPacketDecode.print(showLoc);
+        sbPacketDecode.print(F(" / ShowAcc "));
+        sbPacketDecode.print(showAcc);
+        sbPacketDecode.print(F(" / RefreshTime "));
+        sbPacketDecode.print(DCCStatistics.getRefreshTime());
+        sbPacketDecode.print(F("s / BufferSize "));
+        sbPacketDecode.print(packetHashListSize);
+        sbPacketDecode.print(F(" / Filter "));
+        sbPacketDecode.print(filterInput);
+        sbPacketDecode.print(F(" / Strict Bit Validation "));
+        sbPacketDecode.println(strictMode);
+        sbPacketDecode.println();
+        break;
+    }
+    sbPacketDecode.end();
+    return true;
+}
+
