@@ -36,13 +36,13 @@
 #ifndef oleddisplay_h
 #define oleddisplay_h
 
-#include <Adafruit_SSD1306.h>
-
 #include "Config.h"
 
 // Only compile if USE_OLED is defined.
 // If not, then the entire contents are ignored by the compiler.
 #ifdef USE_OLED
+
+#include <Adafruit_SSD1306.h>
 
 #include "DCCStatistics.h"
 #include "StringBuilder.h"
