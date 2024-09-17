@@ -49,6 +49,12 @@ WiFiServer TelnetManagerClass::server(23);  //default port
 // Web server object.
 WiFiClient TelnetManagerClass::serverClient; 
 
+static IPAddress telNetIp(192, 168, 2, 25);   // "D"
+static IPAddress telNetIpMask(255, 255, 255, 0);
+static IPAddress telNetIpGateWay(192, 168, 2, 0);
+static IPAddress telNetIpDNS1(192, 168, 2, 0);
+static IPAddress telNetIpDNS2(192, 168, 2, 0);
+
 // Function to initialise the object.  It connects to the WiFi access point, 
 //  registers an mDNS name (e.g. ESP.local) and sets up the web server.
 //  By preference, it will connect using the same SSID and password as last time.
@@ -74,6 +80,7 @@ bool TelnetManagerClass::begin(const char *ssid, const char *password, const cha
     WiFi.mode(WIFI_STA);
   }
 
+  WiFi.config(telNetIp, telNetIpGateWay, telNetIpMask);
   WiFi.begin ();
 
   // ... Give ESP 10 seconds to connect to station.

@@ -63,7 +63,7 @@ class TelnetManagerClass {
       return sbHtml.getString();
     }
 
-  private:  
+  private:
     static void handleRoot();
     static void processArguments();
     static void handleNotFound();
